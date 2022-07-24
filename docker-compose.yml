@@ -1,0 +1,20 @@
+---
+version: "3"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  sending:
+    container_name: sending
+    build:
+      context: .
+    links:
+      - rabbitmq
+    environment:
+      - HOST_MQ=rabbitmq
+      - VIRTUAL_MQ=/
+      - QUEUE=whatsapp
