@@ -1,4 +1,5 @@
 const amqp = require("amqplib/callback_api");
+const sleep = require('sleep-promise');
 const { Client, LocalAuth, Buttons, List} = require('whatsapp-web.js');
 
 
@@ -38,15 +39,13 @@ amqp.connect(`amqp://${process.env.HOST_MQ}${process.env.VIRTUAL_MQ}`, function(
     client.on('ready', () => {
         console.info('Client is ready!');
 
-        channel.consume(queue, function(msg) {
+        channel.consume(queue, async function (msg) {
+            await sleep(5000);
+
             const {text, mobile} = JSON.parse(msg.content.toString());
-            client.sendMessage(`${mobile}@c.us`, text).then(r => {});
+            await client.sendMessage(`${mobile}@c.us`, text);
 
-            // let sections = [{title:'sectionTitle',rows:[{title:'ListItem1', description: 'desc'},{title:'ListItem2'}]}];
-            // let list = new List('List body','btnText',sections,'Title','footer');
-            // client.sendMessage(`${mobile}@c.us`, list);
-
-            console.info({mobile, text})
+            console.info({mobile, text});
             channel.ack(msg);
         });
     });
